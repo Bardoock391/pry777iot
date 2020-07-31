@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>°Internet of Things° 2020</title>
+
+    <script>
+      /* invoca a registraServiceWorker instalar la aplicación en el caché del
+       * navegador. No se espera a que termine el registro. */
+      registraServiceWorker();
+      /** Registra un service worker para instalar la aplicación en el
+       * caché del navegador. La palabra reservada async indica que no espera
+       * a que termine y libera el registro de activación que lo llamó. */
+      async function registraServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          try {
+            /* Registra el service worker y espera que termine. El service
+             * worker debe estar en la carpeta public. La palabra await indica
+             * que espera a que termine y solo puede usarse en una función
+             * async. */
+            const registro = await navigator.serviceWorker.register("sw.js");
+            // Registro correcto y se muestra en la consola.
+            console.log("Service Worker registrado.");
+            console.log(registro);
+          } catch (e) {
+            // Hubo un error en el registro.
+            muestraError(e);
+          }
+        }
+      }
+      /** Procesa una excepción y muestra un mensaje de error.
+       * @param {Error} e descripción del error. */
+      function muestraError(e) {
+        console.log(e);
+        alert(e.message);
+      }
+    </script>
+
+    <!-- Ícono para la página web. Debe ponerse en la raíz de la página. -->
+    <link rel="icon" sizes="32x32" href="favicon.ico">
+
+    <!-- Color de la barra de navegación de Chrome en dispositivos móviles. -->
+    <meta name="theme-color" content="#ffcb2d">
+
+    <!-- Configuración de la PWA: Chrome y Edge. -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Configuración para Web Clip en Safari. -->
+    <meta name="apple-mobile-web-app-title" content="db433pwa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="img/icono-2048.png">
+    <link rel="apple-touch-icon" sizes="256x256" href="img/icono-256.png">
+    <link rel="apple-touch-icon" sizes="1024x1024" href="img/icono-1024.png">
+    <link rel="apple-touch-icon" sizes="2048x2048" href="img/icono-2048.png">
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.17.1/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.17.1/firebase-auth.js"></script>
+    <!--<script src="/__/firebase/7.17.1/firebase-database.js"></script>-->
+    <!--<script src="/__/firebase/7.17.1/firebase-messaging.js"></script>-->
+    <script src="/__/firebase/7.17.1/firebase-storage.js"></script>
+    <script src="/__/firebase/7.17.1/firebase-firestore.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+    <script type="module" src="cmp/mi-footer.js"></script>
+    <link rel="stylesheet" href="css/estilos.css">
+    
+    <script>
+      const firestore = firebase.firestore();
+      const ID_PROYECTO = "pry777iot";
+      const ENTIDAD_VENTILADOR = "VENTILADOR";
+      const ENTIDAD_MOVIMIENTO = "MOVIMIENTO";
+      const ENTIDAD_TEMPERATURA = "TEMPERATURA";
+      const ID = "PRCiot";
+      const URL_VENTILADOR = `https://firestore.googleapis.com/v1/projects/${
+        ID_PROYECTO}/databases/(default)/documents/${ENTIDAD_VENTILADOR}/${ID}`;
+
+      const URL_MOVIMIENTO = `https://firestore.googleapis.com/v1/projects/${
+        ID_PROYECTO}/databases/(default)/documents/${ENTIDAD_MOVIMIENTO}/${
+        ID}`;
+
+        const URL_TEMPERATURA = `https://firestore.googleapis.com/v1/projects/${
+        ID_PROYECTO}/databases/(default)/documents/${ENTIDAD_TEMPERATURA}/${
+        ID}`;
+
+      const URL_AGREGA = `https://firestore.googleapis.com/v1/projects/${
+        ID_PROYECTO}/databases/(default)/documents/${ENTIDAD_MOVIMIENTO}/${
+        ID}/LECTURAS`;
+
+        const URL_AGREGAT = `https://firestore.googleapis.com/v1/projects/${
+        ID_PROYECTO}/databases/(default)/documents/${ENTIDAD_TEMPERATURA}/${
+        ID}/LECTURAS`;
+
+      const INTERVALO_EN_MILIS = 1000;
+      const INTERVALO_EN_MILIST = 1000;
+      const MÉTODO_AGREGA = "POST";
+      const MÉTODO_AGREGAT = "POST";
+      const MÉTODO_CAMBIOS = "PATCH";
+      const MÉTODO_CAMBIOST = "PATCH";
+      const HEADERS_JSON = {
+        "Content-Type": "application/json"
+      };
+      function procesaError(e) {
+        console.log(e);
+        alert(e.message);
+      }
+      const HEADERS_JSONT = {
+        "Content-Type": "application/json"
+      };
+      function procesaError(e) {
+        console.log(e);
+        alert(e.message);
+      };
+    </script>
+    
+  </head>
+  <body>
+    <div class="fondo"> 
+      <form action="javascript:actualizaMp()"> 
+        <header>
+          <h1>Ventilador</h1>
+          <section id=mp>
+            <label>
+              <input id=EAVentilador type="checkbox" onclick="EAModificada();">Encender/Apagar
+            </label>
+          </section>
+          </header>
+          <br><br><br>
+
+          
+
+
+      <section id=iot>
+        <p><label>Ventilador<output id="iotVentilador"></output></label></p>
+      <p><output id="iotError"></output></p>
+      <br><br>
+      <p>
+        <label>
+          Intencidad de Movimiento
+          <input id="iotMovimiento" type="range" min="0" max="10"
+            onchange="movimientoModificado();">
+        </label>
+      </p>
+      <br><br>
+      <section id=mp>
+        <p><meter id=mpMovimiento min="0" max="10"></meter></p>
+      </section>
+      <br><br>
+      <p>
+        <label>
+          Regular - Temperatura 
+          <input id="iotTemperatura" type="range" min="0" max="10"
+            onchange="temperaturaModificada();">
+        </label>
+      </p>
+      <br><br>
+      <section id=mp>
+        <p><meter id=mpTemperatura min="0" max="10"></meter></p>
+      </section>
+      
+    </section>
+
+    <script>
+      setInterval(actualizaIotV, INTERVALO_EN_MILIS);
+      iniciaMovimiento();
+      async function actualizaIotV() {
+        try {
+          const resp = await fetch(URL_VENTILADOR);
+          if (resp.ok) {
+            const json = await resp.json();
+            iotVentilador.value = json.fields.valor && json.fields.valor.booleanValue ?
+              "Encendido" : "Apagado";
+          } else {
+            iotVentilador.value = "Apagado";
+            console.log(resp.statusText);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+      async function iniciaMovimiento() {
+        try {
+          const resp = await fetch(URL_MOVIMIENTO);
+          if (resp.ok) {
+            const json = await resp.json();
+            iotMovimiento.value =
+              json.fields.valor && json.fields.valor.integerValue ?
+                json.fields.valor.integerValue : 0;
+          } else {
+            iotMovimiento.value = 0;
+            console.log(resp.statusText);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+      async function movimientoModificado() {
+        try {
+          var data = {
+            fields: { valor: { integerValue: iotMovimiento.value } }
+          };
+          const resp = await fetch(URL_MOVIMIENTO, {
+            method: MÉTODO_CAMBIOS,
+            body: JSON.stringify(data),
+            headers: HEADERS_JSON,
+          });
+          if (!resp.ok) {
+            throw new Error(resp.message);
+          }
+          const resp2 = await fetch(URL_AGREGA, {
+            method: MÉTODO_AGREGA,
+            body: JSON.stringify(data),
+            headers: HEADERS_JSON,
+          });
+          if (!resp2.ok) {
+            throw new Error(resp2.message);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+    </script>
+
+     <!-- Sensor de Temperatura-->
+
+    <script>
+      setInterval(actualizaIotV, INTERVALO_EN_MILIST);
+      iniciaTemperatura();
+      async function actualizaIotV() {
+        try {
+          const resp = await fetch(URL_VENTILADOR);
+          if (resp.ok) {
+            const json = await resp.json();
+            iotVentilador.value = json.fields.valor && json.fields.valor.booleanValue ?
+              "Encendido" : "Apagado";
+          } else {
+            iotVentilador.value = "Apagado";
+            console.log(resp.statusText);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+      async function iniciaTemperatura() {
+        try {
+          const resp = await fetch(URL_TEMPERATURA);
+          if (resp.ok) {
+            const json = await resp.json();
+            iotTemperatura.value =
+              json.fields.valor && json.fields.valor.integerValue ?
+                json.fields.valor.integerValue : 0;
+          } else {
+            iotTemperatura.value = 0;
+            console.log(resp.statusText);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+      async function temperaturaModificada() {
+        try {
+          var data = {
+            fields: { valor: { integerValue: iotTemperatura.value } }
+          };
+          const resp = await fetch(URL_TEMPERATURA, {
+            method: MÉTODO_CAMBIOST,
+            body: JSON.stringify(data),
+            headers: HEADERS_JSONT,
+          });
+          if (!resp.ok) {
+            throw new Error(resp.message);
+          }
+          const resp2 = await fetch(URL_AGREGAT, {
+            method: MÉTODO_AGREGAT,
+            body: JSON.stringify(data),
+            headers: HEADERS_JSONT,
+          });
+          if (!resp2.ok) {
+            throw new Error(resp2.message);
+          }
+        } catch (e) {
+          console.log(e);
+          iotError.value = e.message;
+        }
+      }
+    </script>
+
+      <!-- Script del sensor de Movimiento -->
+    
+    <script>
+      
+      actualizaMp();
+      async function actualizaMp() {
+        firestore.collection(ENTIDAD_MOVIMIENTO).doc(ID).onSnapshot(
+          doc => {
+            if (doc.exists) {
+              mpMovimiento.value = doc.data().valor || 0;
+            } else {
+              mpMovimiento.value = 0;
+            }
+          },
+          e => {
+            procesaError(e);
+            // muestraLuz();
+          }
+        );
+        const docVentilador = await firestore.collection(ENTIDAD_VENTILADOR).doc(ID).get();
+        EAVentilador.checked = docVentilador.exists && Boolean(docVentilador.data().valor);
+      }
+      async function EAModificada() {
+        try {
+          await firestore.collection(ENTIDAD_VENTILADOR).doc(ID).set({
+            valor:EAVentilador.checked
+          });
+        } catch (e) {
+          procesaError(e);
+        }
+      }
+    </script>
+     
+     <!-- Script de Temperatura -->
+
+     <script>
+      
+      actualizaMp();
+      async function actualizaMp() {
+        firestore.collection(ENTIDAD_TEMPERATURA).doc(ID).onSnapshot(
+          doc => {
+            if (doc.exists) {
+              mpTemperatura.value = doc.data().valor || 0;
+            } else {
+              mpTemperatura.value = 0;
+            }
+          },
+          e => {
+            procesaError(e);
+            // muestraLuz();
+          }
+        );
+        const docVentilador = await firestore.collection(ENTIDAD_VENTILADOR).doc(ID).get();
+        EAVentilador.checked = docVentilador.exists && Boolean(docVentilador.data().valor);
+      }
+      async function EAModificada() {
+        try {
+          await firestore.collection(ENTIDAD_VENTILADOR).doc(ID).set({
+            valor:EAVentilador.checked
+          });
+        } catch (e) {
+          procesaError(e);
+        }
+      }
+    </script>
+    </form>
+    <mi-footer></mi-footer>
+
+  </div>
+  </body>
+</html>
